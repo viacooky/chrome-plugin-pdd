@@ -1,0 +1,29 @@
+{
+	"manifest_version": 2,
+	"name": "拼多多自动申请提额插件",
+	"version": "1.0",
+	"description": "拼多多自动申请提额插件",
+	"icons":
+	{
+		"48": "img/icon.png",
+		"128": "img/icon.png"
+	},
+	"browser_action": 
+	{
+		"default_icon": "img/icon.png",
+		"default_title": "拼多多自动申请提额插件",
+		"default_popup": "popup.html"
+	},
+	"content_scripts": 
+	[
+		{
+			"matches": ["https://fuwu.pinduoduo.com/*"],
+			"js": ["js/jquery-1.8.3.js", "js/content-script.js"],
+			"run_at": "document_start"
+		}
+	],
+	"web_accessible_resources": 
+	[
+		"inject.js"
+	]
+}
