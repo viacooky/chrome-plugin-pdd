@@ -21,7 +21,7 @@ const sleep = (time) => {
 
 const doTask = async (request) => {
 	for (let i = 0; i < request.count; i++) {
-		await sleep(request.interval);
+		
 		// 开始
 		$('span:contains(申请提额)').click();
 
@@ -46,10 +46,10 @@ const doTask = async (request) => {
 			if(request.debug){
 				console.log('debug 模式 不提交');
 			}else{
-				// submitDom.click();
+				submitDom.click();
 			}
 			console.log('第' + i + '次执行结束');
 		}, 2000);
-		
+		await sleep(request.interval);
 	}
 }
