@@ -5,13 +5,17 @@ $('#excute').click(e => {
     let input_qty = $('#qty').val();
     let input_reason = $('#reason').val();
     let input_debug = $('#debug').is(':checked');
+    let input_hour = $('#hour').val();
+    let input_min = $('#min').val();
 
     let msg = {
         count: input_count, // 执行次数
         interval: input_interval, // 执行间隔
         qty: input_qty, // 申请提额量
         reason: input_reason, // 申请理由
-        debug: input_debug // debug 模式
+        debug: input_debug, // debug 模式
+        hour: input_hour,
+        min: input_min
     }
     console.log(msg);
     sendMessageToContentScript(msg, (response) => {
