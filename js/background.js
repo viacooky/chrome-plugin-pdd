@@ -1,5 +1,5 @@
 console.log('这是 background');
-var default_interval = 10000;
+var default_interval = 30000; // 每多少毫秒检测一遍
 var base_url = 'https://fuwu.pinduoduo.com/service-market/decrypt';
 
 function auto_run() {
