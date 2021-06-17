@@ -11,11 +11,17 @@ function auto_run() {
 
         var execute_times = await get_execute_times();
 
-
         // 获取配置
         var option = await get_option();
-        log('获取配置' + JSON.stringify(option));
+        // log('获取配置' + JSON.stringify(option));
 
+        var curr_date = new Date();
+        var curr_hour = curr_date.getHours();
+        var curr_min = curr_date.getMinutes();
+        if (curr_hour != option.hour || curr_min != option.min) {
+            log('设置的时间不匹配[' + option.hour + ':' + option.min + ']');
+            return;
+        }
 
         if (execute_times >= option.count) {
             log('运行次数已满');
@@ -23,8 +29,10 @@ function auto_run() {
             set_execute_times(0);
             return;
         }
+
         log('运行次数: ' + (Number(execute_times) + 1) + '/' + option.count);
 
+        // 开始执行自动点击
         var resp = await task(option);
         if (resp.success) {
             set_execute_times(++execute_times); // 执行成功才计数

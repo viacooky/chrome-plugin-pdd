@@ -33,14 +33,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
 
-            // // 表单提交
-            // if (option.debug) {
-            //     var cancelDom = document.querySelector('button[data-testid="beast-core-modal-close-button"]');
-            //     cancelDom.click();
-            // } else {
-            //     var submitDom = document.querySelector('button[data-testid="beast-core-modal-ok-button"]');
-            //     submitDom.click();
-            // }
+            // 表单提交
+            if (option.debug) {
+                var cancelDom = document.querySelector('button[data-testid="beast-core-modal-close-button"]');
+                cancelDom.click();
+            } else {
+                var submitDom = document.querySelector('button[data-testid="beast-core-modal-ok-button"]');
+                submitDom.click();
+            }
 
             request.success = true;
             request.msg = '';
