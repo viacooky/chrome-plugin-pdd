@@ -3,6 +3,9 @@
 	"name": "拼多多自动申请提额插件",
 	"version": "1.0",
 	"description": "拼多多自动申请提额插件",
+	"permissions": [
+		"storage"
+	  ],
 	"icons":
 	{
 		"48": "img/icon.png",
@@ -17,7 +20,7 @@
 	"content_scripts": 
 	[
 		{
-			"matches": ["https://fuwu.pinduoduo.com/*"],
+			"matches": ["https://fuwu.pinduoduo.com/*","https://www.baidu.com/"],
 			"js": ["js/jquery-1.8.3.js", "js/content-script.js"],
 			"run_at": "document_start"
 		}

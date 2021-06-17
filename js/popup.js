@@ -1,4 +1,24 @@
-﻿// 执行
+﻿
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('我被执行了！');
+    try {
+        chrome.storage.local.get({ option: null }, async function (result) {
+            console.log(result.option);
+            $('#count').val(result.option.count);
+            $('#interval').val(result.option.interval);
+            $('#qty').val(result.option.qty);
+            $('#reason').val(result.option.reason);
+            $('#hour').val(result.option.hour);
+            $('#min').val(result.option.min);
+            $('#debug').attr("checked", result.option.debug);
+        });
+    } catch (error) {
+
+    }
+});
+
+
+// 执行
 $('#excute').click(e => {
     let input_count = $('#count').val();
     let input_interval = $('#interval').val();
@@ -9,33 +29,30 @@ $('#excute').click(e => {
     let input_min = $('#min').val();
 
     let msg = {
-        count: input_count, // 执行次数
-        interval: input_interval, // 执行间隔
-        qty: input_qty, // 申请提额量
+        count: Number(input_count), // 执行次数
+        interval: Number(input_interval), // 执行间隔
+        qty: Number(input_qty), // 申请提额量
         reason: input_reason, // 申请理由
         debug: input_debug, // debug 模式
-        hour: input_hour,
-        min: input_min
+        hour: Number(input_hour),
+        min: Number(input_min),
+        excuteCount: Number(0)
     }
-    console.log(msg);
-    sendMessageToContentScript(msg, (response) => {
-        // if (response) alert(response); // content-script的回复消息
+    chrome.storage.local.set({ 'option': msg }, function () {
+        console.log('option ----> ' + msg);
     });
 
 });
 
-// 向content-script主动发送消息
-function sendMessageToContentScript(message, callback) {
-    getCurrentTabId((tabId) => {
-        chrome.tabs.sendMessage(tabId, message, function (response) {
-            if (callback) callback(response);
-        });
+$('#clear').click(e => {
+    chrome.storage.local.remove('option', function () {
+        console.log('remove option');
+        $('#count').val(10);
+        $('#interval').val(10000);
+        $('#qty').val("1");
+        $('#reason').val("解密额度不够");
+        $('#hour').val(0);
+        $('#min').val(0);
+        $('#debug').attr("checked", result.option.debug);
     });
-}
-
-// 获取当前选项卡ID
-function getCurrentTabId(callback) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        if (callback) callback(tabs.length ? tabs[0].id : null);
-    });
-}
+});
