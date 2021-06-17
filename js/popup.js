@@ -1,73 +1,73 @@
-﻿
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('我被执行了！');
-    try {
-        chrome.storage.local.get({ option: null }, async function (result) {
-            console.log(result.option);
-            $('#count').val(result.option.count);
-            $('#interval').val(result.option.interval);
-            $('#qty').val(result.option.qty);
-            $('#reason').val(result.option.reason);
-            $('#hour').val(result.option.hour);
-            $('#min').val(result.option.min);
-            $('#debug').attr("checked", result.option.debug);
-        });
-    } catch (error) {
+﻿var bg = chrome.extension.getBackgroundPage();
 
+
+var defaultOption = {
+    count: 10,
+    qty:1,
+    reason: "解密额度不够",
+    debug:false,
+    hour:0,
+    min:0
+}
+
+document.addEventListener('DOMContentLoaded', async ()=> {
+    let op = await bg.get_option();
+    setHtml(op);
+});
+
+function setHtml(option){
+    $('#count').val(option.count);
+    $('#qty').val(option.qty);
+    $('#reason').val(option.reason);
+    $('#debug').prop('checked',option.debug);
+    $('#hour').val(option.hour);
+    $('#min').val(option.min);
+}
+
+// 保存
+$('#save').click(async () => {
+    let op = {
+        count: Number($('#count').val()), // 执行次数
+        qty: Number($('#qty').val()), // 申请提额量
+        reason: $('#reason').val(), // 申请理由
+        debug: $('#debug').is(':checked'), // debug 模式
+        hour: Number($('#hour').val()),
+        min: Number($('#min').val()),
+    }
+    let rs = await bg.save_option(op);
+    if(rs){
+        alert('保存成功');
+        setHtml(op);
+    }else{
+        alert('保存失败');
+        setHtml(defaultOption)
     }
 });
 
-
-// 执行
-$('#excute').click(e => {
-    let input_count = $('#count').val();
-    let input_interval = $('#interval').val();
-    let input_qty = $('#qty').val();
-    let input_reason = $('#reason').val();
-    let input_debug = $('#debug').is(':checked');
-    let input_hour = $('#hour').val();
-    let input_min = $('#min').val();
-
-    let msg = {
-        count: Number(input_count), // 执行次数
-        interval: Number(input_interval), // 执行间隔
-        qty: Number(input_qty), // 申请提额量
-        reason: input_reason, // 申请理由
-        debug: input_debug, // debug 模式
-        hour: Number(input_hour),
-        min: Number(input_min),
-        excuteCount: Number(0)
+// 重置
+$('#restore').click(async () => {
+    let rs = await bg.save_option(defaultOption);
+    if(rs){
+        alert('重置成功');
+    }else{
+        alert('重置失败');
     }
-    chrome.storage.local.set({ 'option': msg }, function () {
-        console.log('option ----> ' + msg);
-    });
-
-    chrome.storage.local.set({ 'exe_running': true }, function () {
-        console.log('exe_running ----> ' + true);
-    });
-
-    chrome.storage.local.set({ 'exe_count': 0 }, function () {
-        console.log('exe_count ----> ' + 0);
-    });
+    setHtml(defaultOption)
 });
 
-$('#clear').click(e => {
-    chrome.storage.local.remove('option', function () {
-        console.log('remove option');
-        $('#count').val(10);
-        $('#interval').val(10000);
-        $('#qty').val("1");
-        $('#reason').val("解密额度不够");
-        $('#hour').val(0);
-        $('#min').val(0);
-        $('#debug').attr("checked", result.option.debug);
-    });
+// 运行
+$('#run').click(async () => {
+    let rs = await bg.run();
+    if(rs){
+        alert("运行成功");
+    }
+});
 
-    chrome.storage.local.set({ 'exe_count': 0 }, function () {
-        console.log('exe_count ----> ' + 0);
-    });
-
-    chrome.storage.local.set({ 'exe_running': false }, function () {
-        console.log('exe_running ----> ' + false);
-    });
+// 停止
+$('#stop').click(async () => {
+    let rs = await bg.stop();
+    if(rs){
+        alert("停止成功");
+    }
+    await bg.set_execute_times(0);
 });
