@@ -42,6 +42,13 @@ $('#excute').click(e => {
         console.log('option ----> ' + msg);
     });
 
+    chrome.storage.local.set({ 'exe_running': true }, function () {
+        console.log('exe_running ----> ' + true);
+    });
+
+    chrome.storage.local.set({ 'exe_count': 0 }, function () {
+        console.log('exe_count ----> ' + 0);
+    });
 });
 
 $('#clear').click(e => {
@@ -54,5 +61,13 @@ $('#clear').click(e => {
         $('#hour').val(0);
         $('#min').val(0);
         $('#debug').attr("checked", result.option.debug);
+    });
+
+    chrome.storage.local.set({ 'exe_count': 0 }, function () {
+        console.log('exe_count ----> ' + 0);
+    });
+
+    chrome.storage.local.set({ 'exe_running': false }, function () {
+        console.log('exe_running ----> ' + false);
     });
 });
