@@ -58,6 +58,7 @@ $('#restore').click(async () => {
 // 运行
 $('#run').click(async () => {
     let rs = await bg.run();
+    await bg.set_start_time(new Date().getTime());
     if(rs){
         alert("运行成功");
     }

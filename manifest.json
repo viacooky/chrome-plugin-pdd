@@ -4,7 +4,8 @@
     "version": "1.0",
     "description": "拼多多自动申请提额插件",
     "permissions": [
-        "storage"
+        "storage",
+        "tabs"
     ],
     "icons": {
         "48": "img/icon.png",
