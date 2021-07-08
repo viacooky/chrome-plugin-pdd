@@ -1,5 +1,5 @@
 ﻿console.log('这是content script!');
-var default_sleep = 1000;
+var default_sleep = 2000;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('11111');
@@ -46,7 +46,7 @@ async function dd(request){
             // 表单提交
             if (option.debug) {
                 var cancelDom = document.querySelector('button[data-testid="beast-core-modal-close-button"]');
-                cancelDom.click();
+                // cancelDom.click();
             } else {
                 var submitDom = document.querySelector('button[data-testid="beast-core-modal-ok-button"]');
                 submitDom.click();
@@ -56,7 +56,6 @@ async function dd(request){
             request.msg = '';
         }
     } catch (error) {
-        console.log(error);
         request.success = false;
         request.msg = error.message;
     }
