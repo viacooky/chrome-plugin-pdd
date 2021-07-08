@@ -1,47 +1,32 @@
 ﻿console.log('这是 background');
+$('#log').scrollTop($('#log').scrollHeight);
+
 var default_interval = 5000; // 每多少毫秒检测一遍
 var base_url = 'https://fuwu.pinduoduo.com/service-market/decrypt';
-var tab = null;
 
 function auto_run() {
-    
     setTimeout(async () => {
         try {
-            tab = await getFirstTab(base_url);
-            if (tab === undefined || tab === null) {
-                log('当前没有打开[' + base_url + ']的页签');
-            } else {
-                log('获取tab ' + tab.url);
-                await task(tab);
-            }
+            log(111);
+            await task();
         } catch (error) {
-            log(111111);
-            log(error);
+            log(error)
         } finally {
             await sleep(3000);
-            await reloadTab(tab.id, base_url);
             auto_run();
         }
     }, default_interval);
-
 }
 
-function task(tab) {
+function task() {
     return new Promise(async (resolve, reject) => {
         try {
+            var tab = await create_tab(base_url);
+            if (tab === null) return;
             log('开始执行自动提额操作');
+
             // 获取配置
             var option = await get_option();
-
-            // var option = {
-            //     count: 1, // 执行次数
-            //     qty: 1, // 申请提额量
-            //     reason: '申请理由', // 申请理由
-            //     debug: true, // debug 模式
-            //     hour: 1,
-            //     min: 1,
-            // }
-
             var curr_date = new Date();
             var curr_year = curr_date.getFullYear();
             var curr_month = curr_date.getMonth();
@@ -49,7 +34,6 @@ function task(tab) {
 
             var execute_times = await get_execute_times();
             var running = await get_running();
-
             // 是否启动
             if (!running) return;
             // 是否到达设置的时分
@@ -75,6 +59,7 @@ function task(tab) {
                 cmd: 'fill',
                 option: option
             }
+            await sleep(5000);
             var resp = await sendMsgToContentScript(tab.id, fillCmd);
             if (resp && resp.success) {
                 log('执行指令成功');
@@ -85,45 +70,10 @@ function task(tab) {
 
             resolve();
         } catch (error) {
+            console.log(error);
             reject(error);
         }
     });
-}
-
-// 刷新tab
-function reloadTab(tab, url) {
-    return new Promise((resolve, reject) => {
-        try {
-            chrome.tabs.update(tab.id, {
-                'url': url,
-                'selected': true
-            });
-            resolve(true);
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-// 获取第一个tab
-function getFirstTab(url) {
-    return new Promise((resolve, reject) => {
-        try {
-            chrome.windows.getCurrent(function (currentWindow) {
-                chrome.tabs.query({
-                    active: true,
-                    windowId: currentWindow.id,
-                    lastFocusedWindow: true
-                }, (tabs) => {
-                    var tab = tabs.length > 0 ? tabs[0] : undefined;
-                    resolve(tab);
-                });
-
-            });
-        } catch (error) {
-            resolve(null);
-        }
-    })
 }
 
 function sendMsgToContentScript(tabId, request) {
@@ -133,7 +83,8 @@ function sendMsgToContentScript(tabId, request) {
                 resolve(response);
             })
         } catch (error) {
-            resolve(null);
+            log(error);
+            resolve(error);
         }
     })
 }
@@ -276,3 +227,157 @@ function sleep(time) {
 }
 
 auto_run();
+
+
+$('#test_open').click(async () => {
+    let tab = await create_tab(base_url);
+    log(tab);
+});
+
+$('#test_send').click(async () => {
+
+    await chrome.windows.getCurrent(async (currentWindow) => {
+        await chrome.tabs.query({
+            windowId: currentWindow.id
+        }, async (tabs) => {
+            var ids = tabs.flatMap(tab => tab.id);
+            log('all tabIds' + ids);
+        });
+    });
+
+
+    var tabid = parseInt($('#test_tabid').val());
+    alert(tabid);
+
+    var option = {
+        count: 1, // 执行次数
+        qty: 1, // 申请提额量
+        reason: '申请理由', // 申请理由
+        debug: true, // debug 模式
+        hour: 1,
+        min: 1,
+    }
+
+    // 发送执行指令
+    var fillCmd = {
+        cmd: 'fill',
+        option: option
+    }
+    try {
+        var resp = await sendMsgToContentScript(tabid, fillCmd);
+        if (resp && resp.success) {
+            log('执行指令成功');
+            set_execute_times(++execute_times); // 执行成功才计数
+        } else {
+            log('执行指令失败');
+        }
+    } catch (error) {
+        log(error);
+    }
+});
+
+
+
+function create_tab(url) {
+    return new Promise(async (resolve,reject)=>{
+        try {
+            await chrome.windows.getCurrent(async (currentWindow) => {
+                await chrome.tabs.query({
+                    windowId: currentWindow.id
+                }, async (tabs) => {
+                    if (tabs.some(tab => tab.url.includes('background.html'))) {
+                        var ids = tabs.filter(tab => !tab.url.includes('background.html')).flatMap(tab => tab.id);
+                        await chrome.tabs.remove(ids, async () => {
+                            log('remove tab ' + ids);
+                            await chrome.tabs.create({
+                                url: url,
+                                active: false
+                            }, (t) => {
+                                log('create tab ' + t.id);
+                                resolve(t);
+                            });
+                        });
+                    } else {
+                        reject(null);
+                    }
+                });
+            });
+        } catch (error) {
+            log(error);
+        }
+    })
+}
+
+
+var defaultOption = {
+    count: 10,
+    qty: 1,
+    reason: "解密额度不够",
+    debug: false,
+    hour: 0,
+    min: 0
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    let op = await get_option();
+    setHtml(op);
+});
+
+function setHtml(option) {
+    $('#count').val(option.count);
+    $('#qty').val(option.qty);
+    $('#reason').val(option.reason);
+    $('#debug').prop('checked', option.debug);
+    $('#hour').val(option.hour);
+    $('#min').val(option.min);
+}
+
+
+// 保存
+$('#save').click(async () => {
+    let op = {
+        count: Number($('#count').val()), // 执行次数
+        qty: Number($('#qty').val()), // 申请提额量
+        reason: $('#reason').val(), // 申请理由
+        debug: $('#debug').is(':checked'), // debug 模式
+        hour: Number($('#hour').val()),
+        min: Number($('#min').val()),
+    }
+    let rs = await save_option(op);
+    if (rs) {
+        alert('保存成功');
+        setHtml(op);
+    } else {
+        alert('保存失败');
+        setHtml(defaultOption)
+    }
+});
+
+// 重置
+$('#restore').click(async () => {
+    let rs = await save_option(defaultOption);
+    if (rs) {
+        alert('重置成功');
+    } else {
+        alert('重置失败');
+    }
+    setHtml(defaultOption)
+});
+
+// 运行
+$('#run').click(async () => {
+    let rs = await run();
+    await set_start_time(new Date().getTime());
+    if (rs) {
+        alert("运行成功");
+    }
+});
+
+// 停止
+$('#stop').click(async () => {
+    let rs = await stop();
+    if (rs) {
+        alert("停止成功");
+    }
+    await set_execute_times(0);
+});

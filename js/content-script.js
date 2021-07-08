@@ -2,6 +2,7 @@
 var default_sleep = 1000;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('11111');
     dd(request).then((request) => sendResponse(request));
     return true;
 })
@@ -55,6 +56,7 @@ async function dd(request){
             request.msg = '';
         }
     } catch (error) {
+        console.log(error);
         request.success = false;
         request.msg = error.message;
     }

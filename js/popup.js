@@ -72,3 +72,8 @@ $('#stop').click(async () => {
     }
     await bg.set_execute_times(0);
 });
+
+// 后台
+$('#open_background').click(async () => {
+    window.open(chrome.extension.getURL('background.html'));
+});

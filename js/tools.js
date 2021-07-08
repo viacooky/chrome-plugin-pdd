@@ -20,5 +20,9 @@ Date.prototype.format = function (fmt) {
 }
 
 function log(msg) {
-    console.log("[" + new Date().format("yyyy-MM-dd hh:mm:ss") + "] " + msg);
+    var m = "[" + new Date().format("yyyy-MM-dd hh:mm:ss") + "] " + msg;
+    console.log(m);
+    var cc =  $('#log').html();
+    $('#log').html(cc + '\r\n' + m);
+    
 }
